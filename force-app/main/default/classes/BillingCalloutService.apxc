@@ -1,0 +1,29 @@
+public class BillingCalloutService {
+    public static void callBillingService(List<Project__c> newProjects, Map<Id, Project__c> oldProjects) {
+        // if project status is set to billable make call out 
+        // obtain the projectRef and amount and credentials here to send below
+        for (Project__c newProject : newProjects) {
+            Project__c oldProject = oldProjects.get(newProject.Id);
+            System.debug('new: ' + newProject);
+            System.debug('old: ' + oldProject);
+            if (newProject.Status__c == 'Billable') {
+                System.debug('Yes billable');
+            }
+        } 
+        
+        ServiceCredentials__c cred = ServiceCredentials__c.getInstance('BillingServiceCredential');
+        String username = cred.Username__c;
+        String password = cred.Password__c;
+        System.debug('User/Pass: ' + username + ' ' + password);
+    }
+    
+    @future(callout=true)
+    public static void makeCallout(String projectRef, Double billableAmount, String username, String password) {
+        BillingServiceProxy.project p = new BillingServiceProxy.project();
+        p.projectid = projectRef;
+        p.billAmount = billableAmount;
+		p.username = username;
+        p.password = password;
+        
+    }
+}
